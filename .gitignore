@@ -1,0 +1,21 @@
+# Dependencies and build output
+/node_modules/
+/.next/
+/out/
+/coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local environment and credentials
+.env*
+!.env.example
+*.pem
+
+# Test artifacts
+/playwright-report/
+/test-results/
+
+# Local tooling and operating system
+.DS_Store
+/.vercel/
+*.log

@@ -1,0 +1,337 @@
+{
+  "id": "4dee7f39-582a-4810-97f5-ee3cb46b8f33",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "nexo.memberships": {
+      "name": "memberships",
+      "schema": "nexo",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "memberships_user_id_users_id_fk": {
+          "name": "memberships_user_id_users_id_fk",
+          "tableFrom": "memberships",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "memberships_workspace_owner_fk": {
+          "name": "memberships_workspace_owner_fk",
+          "tableFrom": "memberships",
+          "tableTo": "workspaces",
+          "schemaTo": "nexo",
+          "columnsFrom": [
+            "workspace_id",
+            "user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "owner_user_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "memberships_workspace_id_user_id_pk": {
+          "name": "memberships_workspace_id_user_id_pk",
+          "columns": [
+            "workspace_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "memberships_personal_user_key": {
+          "name": "memberships_personal_user_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
+      "policies": {
+        "memberships_select_own": {
+          "name": "memberships_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "nexo_app"
+          ],
+          "using": "\"nexo\".\"memberships\".\"user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        },
+        "memberships_insert_own": {
+          "name": "memberships_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "nexo_app"
+          ],
+          "withCheck": "\"nexo\".\"memberships\".\"user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "nexo.profiles": {
+      "name": "profiles",
+      "schema": "nexo",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locale": {
+          "name": "locale",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'es-MX'"
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'MXN'"
+        },
+        "time_zone": {
+          "name": "time_zone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'America/Mexico_City'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profiles_user_id_users_id_fk": {
+          "name": "profiles_user_id_users_id_fk",
+          "tableFrom": "profiles",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "profiles_select_own": {
+          "name": "profiles_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "nexo_app"
+          ],
+          "using": "\"nexo\".\"profiles\".\"user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        },
+        "profiles_insert_own": {
+          "name": "profiles_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "nexo_app"
+          ],
+          "withCheck": "\"nexo\".\"profiles\".\"user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        },
+        "profiles_update_own": {
+          "name": "profiles_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "nexo_app"
+          ],
+          "using": "\"nexo\".\"profiles\".\"user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid",
+          "withCheck": "\"nexo\".\"profiles\".\"user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        }
+      },
+      "checkConstraints": {
+        "profiles_locale_check": {
+          "name": "profiles_locale_check",
+          "value": "\"nexo\".\"profiles\".\"locale\" = 'es-MX'"
+        },
+        "profiles_currency_check": {
+          "name": "profiles_currency_check",
+          "value": "\"nexo\".\"profiles\".\"currency\" = 'MXN'"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "nexo.workspaces": {
+      "name": "workspaces",
+      "schema": "nexo",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Espacio personal'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "workspaces_owner_user_id_users_id_fk": {
+          "name": "workspaces_owner_user_id_users_id_fk",
+          "tableFrom": "workspaces",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "owner_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "workspaces_owner_key": {
+          "name": "workspaces_owner_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "owner_user_id"
+          ]
+        },
+        "workspaces_id_owner_key": {
+          "name": "workspaces_id_owner_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "owner_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "workspaces_select_own": {
+          "name": "workspaces_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "nexo_app"
+          ],
+          "using": "\"nexo\".\"workspaces\".\"owner_user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        },
+        "workspaces_insert_own": {
+          "name": "workspaces_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "nexo_app"
+          ],
+          "withCheck": "\"nexo\".\"workspaces\".\"owner_user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        },
+        "workspaces_update_own": {
+          "name": "workspaces_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "nexo_app"
+          ],
+          "using": "\"nexo\".\"workspaces\".\"owner_user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid",
+          "withCheck": "\"nexo\".\"workspaces\".\"owner_user_id\" = nullif(current_setting('nexo.user_id', true), '')::uuid"
+        }
+      },
+      "checkConstraints": {
+        "workspaces_name_check": {
+          "name": "workspaces_name_check",
+          "value": "length(trim(\"nexo\".\"workspaces\".\"name\")) > 0"
+        }
+      },
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "nexo": "nexo"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
